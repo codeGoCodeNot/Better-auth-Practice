@@ -1,12 +1,20 @@
+import getSession from "@/lib/get-session";
+import { dashboardPath } from "@/path";
 import type { Metadata } from "next";
-import { ResendVerificationButton } from "./resend-verification-button";
+import { redirect } from "next/navigation";
+import ResendVerificationButton from "../../../features/email-verification/components/resend-verification-button";
 
 export const metadata: Metadata = {
   title: "Verify Email",
 };
 
-export default function VerifyEmailPage() {
-  // TODO: Redirect user if not authenticated or already verified
+const VerifyEmailPage = async () => {
+  const session = await getSession();
+  const user = session?.user;
+
+  if (!user) return null;
+
+  if (user.emailVerified) redirect(dashboardPath());
 
   return (
     <main className="flex flex-1 items-center justify-center px-4 text-center">
@@ -17,8 +25,10 @@ export default function VerifyEmailPage() {
             A verification email was sent to your inbox.
           </p>
         </div>
-        <ResendVerificationButton email="john.doe@example.com" />
+        <ResendVerificationButton email={user.email} />
       </div>
     </main>
   );
-}
+};
+
+export default VerifyEmailPage;

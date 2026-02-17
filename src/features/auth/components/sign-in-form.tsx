@@ -24,10 +24,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
-import { dashboardPath } from "@/path";
+import { dashboardPath, emailVerifiedPath, verifyEmailPath } from "@/path";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { verify } from "crypto";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -61,7 +62,7 @@ export function SignInForm() {
     setLoading(true);
     setError(null);
 
-    const { error } = await authClient.signIn.email({
+    const { error, data } = await authClient.signIn.email({
       email,
       password,
       rememberMe,
@@ -71,6 +72,8 @@ export function SignInForm() {
 
     if (error) {
       setError(error.message || "Something went wrong.");
+    } else if (data.user.emailVerified === false) {
+      router.push(verifyEmailPath());
     } else {
       toast.success("Signed in successfully!");
       router.push(dashboardPath());

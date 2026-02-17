@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
 import { DeleteApplication } from "@/features/admin/components/delete-application";
 import getSession from "@/lib/get-session";
-import { forbidden, unauthorized } from "next/navigation";
+import { verifyEmailPath } from "@/path";
+import type { Metadata } from "next";
+import { forbidden, redirect, unauthorized } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -13,6 +14,7 @@ const AdminPage = async () => {
 
   if (!user) unauthorized();
   if (user?.role !== "admin") forbidden();
+  if (!user.emailVerified) redirect(verifyEmailPath());
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-12">

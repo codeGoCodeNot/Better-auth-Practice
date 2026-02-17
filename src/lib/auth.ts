@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "@/lib/prisma";
 import { hashPassword, verifyPassword } from "@/utils/password";
+import sendEmail from "./resend";
 
 export type Session = typeof auth.$Infer.Session;
 export type User = typeof auth.$Infer.Session.user;
@@ -12,9 +13,21 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    // requireEmailVerification: true,
     password: {
       hash: hashPassword,
       verify: verifyPassword,
+    },
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendEmail({
+        to: user.email,
+        subject: "Verify your email",
+        text: `Please verify your email by clicking the following link: ${url}`,
+      });
     },
   },
   session: {

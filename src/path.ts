@@ -4,5 +4,6 @@ export const signInPath = () => "/sign-in";
 export const homePath = "/";
 
 export const emailVerifiedPath = () => "/email-verified";
+export const verifyEmailPath = () => "/verify-email";
 
 export const dashboardPath = () => "/dashboard";

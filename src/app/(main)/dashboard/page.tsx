@@ -1,8 +1,9 @@
 import ProfileInformation from "@/features/dashboard/components/profile-information";
 import EmailVerificationAlert from "@/features/email-verification/components/email-verification-alert";
 import getSession from "@/lib/get-session";
+import { verifyEmailPath } from "@/path";
 import type { Metadata } from "next";
-import { unauthorized } from "next/navigation";
+import { redirect, unauthorized } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -13,6 +14,7 @@ const DashboardPage = async () => {
   const user = session?.user;
 
   if (!user) unauthorized();
+  if (!user.emailVerified) redirect(verifyEmailPath());
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-12">
