@@ -26,19 +26,10 @@ export default function Home() {
           />
         </div>
         <h1 className="text-3xl font-semibold sm:text-4xl">
-          Better-Auth Tutorial
+          Mini Dashboard with Better-Auth and Prisma
         </h1>
         <p className="text-muted-foreground mt-3 text-base text-balance sm:text-lg">
-          Learn how to handle authentication in Next.js using Better-Auth with
-          this tutorial by{" "}
-          <Link
-            href="https://www.youtube.com/c/codinginflow?sub_confirmation=1"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary hover:underline"
-          >
-            Coding in Flow
-          </Link>
+          Learn how to handle authentication in Next.js using Better-Auth
         </p>
         <div className="mx-auto mt-6 flex max-w-sm flex-col gap-3 sm:flex-row sm:justify-center">
           <Button asChild>
