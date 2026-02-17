@@ -1,7 +1,6 @@
 "use client";
 
 import { LoadingButton } from "@/components/loading-button";
-import { PasswordInput } from "@/components/password-input";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
@@ -11,36 +10,46 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { passwordSchema } from "@/lib/validation";
+import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
+import { resetPasswordPath } from "@/path";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const resetPasswordSchema = z.object({
-  newPassword: passwordSchema,
+const forgotPasswordSchema = z.object({
+  email: z.email({ message: "Please enter a valid email" }),
 });
 
-type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;
+type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
 
-interface ResetPasswordFormProps {
-  token: string;
-}
-
-export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
+export function ForgotPasswordForm() {
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const router = useRouter();
-
-  const form = useForm<ResetPasswordValues>({
-    resolver: zodResolver(resetPasswordSchema),
-    defaultValues: { newPassword: "" },
+  const form = useForm<ForgotPasswordValues>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: { email: "" },
   });
 
-  async function onSubmit({ newPassword }: ResetPasswordValues) {
-    // TODO: Handle password reset request
+  async function onSubmit({ email }: ForgotPasswordValues) {
+    setSuccess(null);
+    setError(null);
+
+    const { error } = await authClient.requestPasswordReset({
+      email,
+      redirectTo: resetPasswordPath(),
+    });
+
+    if (error) {
+      setError(error.message || "Something went wrong");
+    } else {
+      setSuccess(
+        "If an account with that email exists, a reset link has been sent",
+      );
+      form.reset();
+    }
   }
 
   const loading = form.formState.isSubmitting;
@@ -52,14 +61,14 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="newPassword"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>New password</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <PasswordInput
-                      autoComplete="new-password"
-                      placeholder="Enter new password"
+                    <Input
+                      type="email"
+                      placeholder="your@email.com"
                       {...field}
                     />
                   </FormControl>
@@ -80,7 +89,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
             )}
 
             <LoadingButton type="submit" className="w-full" loading={loading}>
-              Reset password
+              Send reset link
             </LoadingButton>
           </form>
         </Form>

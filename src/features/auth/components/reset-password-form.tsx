@@ -1,6 +1,7 @@
 "use client";
 
 import { LoadingButton } from "@/components/loading-button";
+import { PasswordInput } from "@/components/password-input";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
@@ -10,30 +11,54 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
+import { passwordSchema } from "@/lib/validation";
+import { signInPath } from "@/path";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { sign } from "crypto";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const forgotPasswordSchema = z.object({
-  email: z.email({ message: "Please enter a valid email" }),
+const resetPasswordSchema = z.object({
+  newPassword: passwordSchema,
 });
 
-type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
+type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;
 
-export function ForgotPasswordForm() {
+interface ResetPasswordFormProps {
+  token: string;
+}
+
+export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm<ForgotPasswordValues>({
-    resolver: zodResolver(forgotPasswordSchema),
-    defaultValues: { email: "" },
+  const router = useRouter();
+
+  const form = useForm<ResetPasswordValues>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: { newPassword: "" },
   });
 
-  async function onSubmit({ email }: ForgotPasswordValues) {
-    // TODO: Handle password reset
-  }
+  const onSubmit = async ({ newPassword }: ResetPasswordValues) => {
+    setSuccess(null);
+    setError(null);
+
+    const { error } = await authClient.resetPassword({
+      token,
+      newPassword,
+    });
+
+    if (error) {
+      setError(error.message || "Something went wrong");
+    } else {
+      setSuccess("Password reset successfully. Redirecting to login...");
+      setTimeout(() => router.push(signInPath()), 1500);
+      form.reset();
+    }
+  };
 
   const loading = form.formState.isSubmitting;
 
@@ -44,14 +69,14 @@ export function ForgotPasswordForm() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="email"
+              name="newPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>New password</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="your@email.com"
+                    <PasswordInput
+                      autoComplete="new-password"
+                      placeholder="Enter new password"
                       {...field}
                     />
                   </FormControl>
@@ -72,7 +97,7 @@ export function ForgotPasswordForm() {
             )}
 
             <LoadingButton type="submit" className="w-full" loading={loading}>
-              Send reset link
+              Reset password
             </LoadingButton>
           </form>
         </Form>

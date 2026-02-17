@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { ForgotPasswordForm } from "./forgot-password-form";
+import { ForgotPasswordForm } from "../../../features/auth/components/forgot-password-form";
 
 export const metadata: Metadata = {
   title: "Forgot password",
 };
 
-export default function ForgotPasswordPage() {
+const ForgotPasswordPage = async () => {
   return (
     <main className="flex min-h-svh items-center justify-center px-4">
-      <div className="space-y-6 w-full">
+      <div className="w-full space-y-6">
         <div className="space-y-2 text-center">
           <h1 className="text-2xl font-semibold">Forgot password</h1>
           <p className="text-muted-foreground">
@@ -20,4 +20,6 @@ export default function ForgotPasswordPage() {
       </div>
     </main>
   );
-}
+};
+
+export default ForgotPasswordPage;
