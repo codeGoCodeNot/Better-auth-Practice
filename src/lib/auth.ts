@@ -1,8 +1,11 @@
+import prisma from "@/lib/prisma";
+import { changePasswordPath, emailPath, resetPasswordPath } from "@/path";
+import { hashPassword, verifyPassword } from "@/utils/password";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import prisma from "@/lib/prisma";
-import { hashPassword, verifyPassword } from "@/utils/password";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import sendEmail from "./resend";
+import { passwordSchema } from "./validation";
 
 export type Session = typeof auth.$Infer.Session;
 export type User = typeof auth.$Infer.Session.user;
@@ -52,5 +55,22 @@ export const auth = betterAuth({
         input: false,
       },
     },
+  },
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (
+        ctx.path === emailPath() ||
+        ctx.path === resetPasswordPath() ||
+        ctx.path === changePasswordPath()
+      ) {
+        const password = ctx.body.password || ctx.body.newPassword;
+        const { error } = passwordSchema.safeParse(password);
+        if (error) {
+          throw new APIError("BAD_REQUEST", {
+            message: "Password does not meet complexity requirements",
+          });
+        }
+      }
+    }),
   },
 });
