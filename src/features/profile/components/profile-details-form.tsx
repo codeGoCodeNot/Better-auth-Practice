@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UserAvatar } from "@/components/user-avatar";
+import { User } from "@/lib/auth";
+import { authClient } from "@/lib/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { XIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -20,24 +22,21 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const updateProfileSchema = z.object({
+export const updateProfileSchema = z.object({
   name: z.string().trim().min(1, { message: "Name is required" }),
   image: z.string().optional().nullable(),
 });
 
 export type UpdateProfileValues = z.infer<typeof updateProfileSchema>;
+type ProfileDetailsFormProps = {
+  user: User;
+};
 
-export function ProfileDetailsForm() {
+export function ProfileDetailsForm({ user }: ProfileDetailsFormProps) {
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
-
-  // TODO: Render real user info
-  const user = {
-    name: "John Doe",
-    image: undefined,
-  };
 
   const form = useForm<UpdateProfileValues>({
     resolver: zodResolver(updateProfileSchema),
@@ -48,10 +47,23 @@ export function ProfileDetailsForm() {
   });
 
   async function onSubmit({ name, image }: UpdateProfileValues) {
-    // TODO: Handle profile update
+    setStatus(null);
+    setError(null);
+
+    const { error } = await authClient.updateUser({
+      name,
+      image,
+    });
+
+    if (error) {
+      setError(error.message || "Something went wrong.");
+    } else {
+      setStatus("Profile updated successfully!");
+      router.refresh();
+    }
   }
 
-  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -61,7 +73,7 @@ export function ProfileDetailsForm() {
       };
       reader.readAsDataURL(file);
     }
-  }
+  };
 
   const imagePreview = form.watch("image");
 

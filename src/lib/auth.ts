@@ -52,20 +52,30 @@ export const auth = betterAuth({
       });
     },
   },
+  user: {
+    changeEmail: {
+      enabled: true,
+      sendChangeEmailVerification: async ({ user, url, newEmail }) => {
+        await sendEmail({
+          to: user.email,
+          subject: "Confirm your email change",
+          text: `Your email has been changed to ${newEmail}. If you did not request this change, please click the following link to secure your account: ${url}`,
+        });
+      },
+    },
+    additionalFields: {
+      role: {
+        type: "string",
+        input: false,
+      },
+    },
+  },
   session: {
     expiresIn: 60 * 60 * 24 * 30, // 30 days
     updateAge: 60 * 60 * 24, // 1 day
     cookieCache: {
       enabled: true,
       maxAge: 5 * 60, // 5 minutes
-    },
-  },
-  user: {
-    additionalFields: {
-      role: {
-        type: "string",
-        input: false,
-      },
     },
   },
   hooks: {

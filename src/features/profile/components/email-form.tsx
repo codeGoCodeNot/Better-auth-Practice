@@ -11,10 +11,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
+import { emailVerifiedPath } from "@/path";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import z from "zod";
+import z, { set } from "zod";
 
 export const updateEmailSchema = z.object({
   newEmail: z.email({ message: "Enter a valid email" }),
@@ -37,9 +39,21 @@ export function EmailForm({ currentEmail }: EmailFormProps) {
     },
   });
 
-  async function onSubmit(values: UpdateEmailValues) {
-    // TODO: Handle email update
-  }
+  const onSubmit = async ({ newEmail }: UpdateEmailValues) => {
+    setStatus(null);
+    setError(null);
+
+    const { error } = await authClient.changeEmail({
+      newEmail,
+      callbackURL: emailVerifiedPath(),
+    });
+
+    if (error) {
+      setError(error.message || "Something went wrong.");
+    } else {
+      setStatus("Email change requested. Please check your inbox.");
+    }
+  };
 
   const loading = form.formState.isSubmitting;
 
