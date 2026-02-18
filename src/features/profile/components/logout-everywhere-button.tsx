@@ -6,7 +6,6 @@ import { signInPath } from "@/path";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { set } from "zod";
 
 export function LogoutEverywhereButton() {
   const [loading, setLoading] = useState(false);

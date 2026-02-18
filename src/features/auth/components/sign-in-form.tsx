@@ -24,15 +24,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
-import { dashboardPath, emailVerifiedPath, verifyEmailPath } from "@/path";
+import { dashboardPath, verifyEmailPath } from "@/path";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { verify } from "crypto";
 import Link from "next/link";
-import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { set, z } from "zod";
+import { z } from "zod";
 
 const signInSchema = z.object({
   email: z.email({ message: "Please enter a valid email" }),
