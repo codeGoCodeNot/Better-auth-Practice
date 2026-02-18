@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { EmailForm } from "../../../features/profile/components/email-form";
-import { LogoutEverywhereButton } from "../../../components/logout-everywhere-button";
+import { LogoutEverywhereButton } from "../../../features/profile/components/logout-everywhere-button";
 import { PasswordForm } from "../../../features/profile/components/password-form";
 import { ProfileDetailsForm } from "../../../features/profile/components/profile-details-form";
 import getSession from "@/lib/get-session";
